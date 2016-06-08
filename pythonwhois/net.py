@@ -5,6 +5,9 @@ from . import shared
 def get_whois_raw(domain, server="", previous=None, rfc3490=True, never_cut=False, with_server_list=False, server_list=None, proxy_opener=None):
 	previous = previous or []
 	server_list = server_list or []
+	# normalize to lower case since comparisons elsewhere rely upon it
+	domain = domain.lower()
+
 	# Sometimes IANA simply won't give us the right root WHOIS server
 	exceptions = {
 		".ac.uk": "whois.ja.net",
@@ -13,6 +16,8 @@ def get_whois_raw(domain, server="", previous=None, rfc3490=True, never_cut=Fals
 		".moe": "whois.nic.moe",
 		".arpa": "whois.iana.org",
 		".bid": "whois.nic.bid",
+		".ch": "whois.nic.ch",
+		".de": "whois.denic.de",
 		".int": "whois.iana.org",
 		".kred": "whois.nic.kred",
 		".nagoya": "whois.gmoregistry.net",
