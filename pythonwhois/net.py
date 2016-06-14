@@ -108,12 +108,15 @@ def whois_request(domain, server, port=43, proxy_opener=None):
 		sock = proxy_opener()
 	else:
 		sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	sock.connect((server, port))
-	sock.send(("%s\r\n" % domain).encode("utf-8"))
 	buff = b""
-	while True:
-		data = sock.recv(1024)
-		if len(data) == 0:
-			break
-		buff += data
+	try:
+		sock.connect((server, port))
+		sock.send(("%s\r\n" % domain).encode("utf-8"))
+		while True:
+			data = sock.recv(1024)
+			if len(data) == 0:
+				break
+			buff += data
+	finally:
+		sock.close()
 	return buff.decode("utf-8", "replace")
