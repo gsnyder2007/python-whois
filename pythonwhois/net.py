@@ -1,8 +1,10 @@
+import logging
 import socket, re, sys
 from codecs import encode, decode
 from . import shared
 
-def get_whois_raw(domain, server="", previous=None, rfc3490=True, never_cut=False, with_server_list=False, server_list=None, proxy_opener=None):
+
+def get_whois_raw(domain, server="", previous=None, rfc3490=True, never_cut=False, with_server_list=False, server_list=None, proxy_opener=None, whois_server_cache=None):
 	previous = previous or []
 	server_list = server_list or []
 	# normalize to lower case since comparisons elsewhere rely upon it
@@ -48,7 +50,7 @@ def get_whois_raw(domain, server="", previous=None, rfc3490=True, never_cut=Fals
 				target_server = exc_serv
 				break
 		if is_exception == False:
-			target_server = get_root_server(domain, proxy_opener=proxy_opener)
+			target_server = get_root_server(domain, proxy_opener=proxy_opener, whois_server_cache=whois_server_cache)
 	else:
 		target_server = server
 	if target_server == "whois.jprs.jp":
@@ -94,18 +96,26 @@ def get_whois_raw(domain, server="", previous=None, rfc3490=True, never_cut=Fals
 	else:
 		return new_list
 
-def get_root_server(domain, proxy_opener=None):
+def get_root_server(domain, proxy_opener=None, whois_server_cache=None):
+	tld = '.' + domain.split('.')[-1]
+	if whois_server_cache and tld in whois_server_cache:
+		# To be consistent with the exception map, above, we use the dot ('.') plus the TLD letters in lowercase to look into the whois server cache
+		return whois_server_cache[tld]
+
 	data = whois_request(domain, "whois.iana.org", proxy_opener=proxy_opener)
 	for line in [x.strip() for x in data.splitlines()]:
 		match = re.match("refer:\s*([^\s]+)", line)
 		if match is None:
 			continue
+		if isinstance(whois_server_cache, dict):
+			whois_server_cache.update({tld: match.group(1)})
 		return match.group(1)
 	raise shared.WhoisException("No root WHOIS server found for domain.")
 
 def whois_request(domain, server, port=43, proxy_opener=None):
 	if proxy_opener:
 		sock = proxy_opener()
+		logging.debug('got socket from proxy opener for domain {}, server {}, port {}'.format(domain, server, port))
 	else:
 		sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	buff = b""

@@ -1,10 +1,10 @@
 from setuptools import setup
 
 setup(name='pythonwhois',
-      version='2.4.3',
-      description='Module for retrieving and parsing the WHOIS data for a domain. Supports most domains. No dependencies.',
+      version='2.5.0',
+      description='Module for retrieving and parsing the WHOIS data for a domain. Supports most domains. Modified from Sven Slootwegs versionto support use of a proxy and whois server cache',
       author='Sven Slootweg',
-      author_email='pythonwhois@cryto.net',
+      author_email='gsnyder@opsecsecurity.com',
       url='http://cryto.net/pythonwhois',
       packages=['pythonwhois'],
       package_dir={"pythonwhois":"pythonwhois"},
