@@ -4,6 +4,7 @@ from codecs import encode, decode
 from . import shared
 
 
+
 def get_whois_raw(domain, server="", previous=None, rfc3490=True, never_cut=False, with_server_list=False, server_list=None, proxy_opener=None, whois_server_cache=None):
 	previous = previous or []
 	server_list = server_list or []
